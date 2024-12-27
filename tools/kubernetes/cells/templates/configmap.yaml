@@ -45,13 +45,16 @@ data:
     dbtcppassword: {$MARIADB_ROOT_PASSWORD}
     {{- end }}
 
+    {{- if .Values.mongodb.enabled }}
     documentsdsn: {{ include "cells.mongodbURL" . }}/cells
     usedocumentsdsn: true
+    {{- end }}
 
     # Defined in .env file
     frontendlogin: admin
     frontendpassword: P@ssw0rd
 
+    {{- if .Values.minio.enabled }}
     dstype: S3
     dss3custom: {{ include "cells.minioURL" . }}
     dss3apikey: {$MINIO_ROOT_USER}
@@ -62,6 +65,7 @@ data:
     dss3bucketbinaries: binaries
     dss3bucketthumbs: thumbnails
     dss3bucketversions: versions
+    {{- end }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -106,9 +110,11 @@ data:
           common_name={{ include "cells.serviceDomain" . }} \
           ttl=8760h
     
+        {{- if .Values.vault.enable }}
         vault write pki/config/urls \
           issuing_certificates="{{ include "cells.vaultURL" . }}/v1/pki/ca" \
           crl_distribution_points="{{ include "cells.vaultURL" . }}/v1/pki/crl"
+        {{- end }}
     
         vault secrets tune -max-lease-ttl=8760h pki
     

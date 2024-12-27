@@ -238,8 +238,10 @@ spec:
                   name: {{ .Release.Name }}-minio
                   key: root-password
             {{- end }}
+            {{- if .Values.vault.enabled }}
             - name: CELLS_CERTS_STORE
               value: {{ include "cells.vaultURL" . }}/caddycerts
+            {{- end }}
           volumeMounts:
             - name: cells
               mountPath: /var/cells-install
